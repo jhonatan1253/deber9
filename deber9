@@ -1,0 +1,51 @@
+#include <avr/wdt.h>
+#include <MsTimer2.h>
+
+int contador = 0;
+int encendido1 = 0;
+int ad = 0;
+int tiempo=0;
+int tiempo2=1;
+
+void setup(){
+  Serial.begin(9600);
+  Serial.println("bienvenido");
+  MsTimer2::set(1000, reset);
+  attachInterrupt(0,config,LOW);
+}
+
+void loop() {
+  if(encendido1==1){
+    ad = analogRead(0);
+    tiempo = map(ad, 0, 1023, 0, 60);
+    delay(50);
+    if (tiempo2!=tiempo){
+      Serial.println(String("Tiempo: ")+String(tiempo));  
+    }
+    tiempo2 = tiempo;
+  }
+}
+
+void reset() {
+  cont++;
+  if (contador==tiempo){
+  wdt_disable();
+  wdt_enable(WDTO_500MS);
+  }
+}
+
+void config() {
+  switch(encendido1){
+    case 0:
+      Serial.println("INICIO ");
+      Serial.println("Seleccione el tiempo de reinicio ");
+      on1++;
+    break;
+    
+    case 1:
+      Serial.println(String("Sistema se reinicia en: ")+String(tiempo)+String(" segundos"));
+      MsTimer2::start();
+      on1=0;
+    break;
+  }
+}
